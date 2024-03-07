@@ -1,0 +1,4 @@
+ligne = "==================================================================="
+regles = "Les règles du jeu sont simples : \n>> Vous devez prendre des décisions pour faire baisser le taux de pollution. \n\nMais attention !\nChaque année, la population augmente, ainsi que le taux de pollution, le taux de natalité et le budget de la ville (PIB).\nGrace à l'argent gagné au fil de la partie, vous pourrez prendre des décisions pour mener votre objectif à bien.\nCependant, chacune de vos décisions a un impact sur l'aspect social (population et taux de natalité), économique (PIB) et écologique (taux de pollution).\n"
+print("\nBienvenue sur GreenCity !")
+print("Votre objectif : Faire descendre la pollution le plus possible, jusqu'en 2100.\n")
