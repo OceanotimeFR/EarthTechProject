@@ -1,5 +1,5 @@
-import pygame, time, functions
-from pygame.locals import * ; from colors import *
+import pygame, time
+from pygame.locals import * ; from earthtechproject_colors import *
 
 pygame.init()
 
@@ -24,9 +24,6 @@ def draw_image(image,x,y):
 def draw_text(text,font,text_col,x,y):
     txt = police.render(text,True,text_col)
     screen.blit(txt,(x,y))
-
-
-
 
 # Paramètres fenêtre jeu (Nom & Logo)
 pygame.display.set_caption("GreenCity")
@@ -81,9 +78,9 @@ time.sleep(3)
 
 # Main Game
 running = True
-while running :
-    draw_image(fond,0,0)
+while running :   
     draw_text("MENU",police,TEXT_COL,550,300)
+    draw_image(fond,0,0)
     pygame.display.flip()
 
     # Détection évènements (appuyer touche, cliquer, bouger souris...)
@@ -92,3 +89,6 @@ while running :
         # Quand appuyer sur croix rouge, quitter le jeu
         if event.type == pygame.QUIT:
             running = False
+        
+        if event.type == pygame.K_SPACE :
+            pass

@@ -1,9 +1,11 @@
-import random
-import pygame
-import time
+import pygame, threading, time, random
+from earthtechproject_colors import *
 
 
-def printspeed(word, speed = 0, sound = 0, volume = 1):
+
+
+
+def printspeed(word, speed = 50, sound = "", volume = 1):
     word = str(word)
     string = ""
     for i in range(len(str(word))):
@@ -24,7 +26,7 @@ class Ville:
         self.tranchedages = ((self.population*(24/100)), (self.population*(55/100)), (self.population*(21/100)))
         self.txnatalite = (self.population/2) * (0.02 + 0.03 * self.Annee)
         self.AugPIB = AugmentationPIB
-    
+
     def augmenterpib(self):
         self.pib += self.pib*self.AugPIB
 
@@ -53,7 +55,6 @@ class Ville:
 
 
     def taketurn(self):
-
         try:
             action = int(input("Choissisez une action (1. Developper produits locaux, 2. Developpe transports)"))
         except:
@@ -67,15 +68,95 @@ class Ville:
             action = int(input("Valeur invalide"))
 
 
-    def Stats(self):
-        return  f"Population: {self.population} Millions", f"PIB:{self.pib} Md", f"Tx Carbone: {self.emissioncarbone} Mt", f"Gain PIB: +{self.AugPIB}%"
+#Annee = 2024
+#Ville1 = Ville("Bezons", random.randint(5, 100), random.randint(1, 38))
+#if __name__ == "__main__":
+#    for i in range(2):
+#        Ville1.taketurn()
+#        Ville1.MiseAJourStats()
+#        Annee += 1
 
-Annee = 2024
-Ville1 = Ville("Bezons", random.randint(5, 100), random.randint(1, 38))
-if __name__ == "__main__":
-    printspeed(f"Voici votre ville: {Ville1.Stats()}")
-    for i in range(100):
-        Ville1.taketurn()
-        Ville1.MiseAJourStats()
-        Annee += 1
-        printspeed((Annee), (Ville1.Stats()))
+
+
+
+# Fonctions Introduction Texte & Image
+def draw_image(image,x,y):
+    screen.blit(image,(x,y))
+
+def draw_text(text,font,text_col,x,y):
+    txt = police.render(text,True,text_col)
+    screen.blit(txt,(x,y))
+
+def etpgame_ui(pos_y,image,scale_x,scale_y,pos_x,pos2_y) :
+    import pygame
+
+    pygame.draw.rect(screen,BLACK,[63,pos_y, 195, 50],1,10) # Contours
+    pygame.draw.rect(screen,BLACK,[12, pos_y, 50, 50],0,10) # Fond
+    pygame.display.flip()
+    img = pygame.image.load(image).convert_alpha()
+    img = pygame.transform.scale(img, (scale_x, scale_y))
+    screen.blit(img,(pos_x,pos2_y))
+
+
+# MAJ Variables
+def etpvar_maj(txt,basicval,incrementation,nbtour,rectpos_y,txtpos_y,txtcol) :
+    import pygame, time
+
+    i = 0
+    for i in range (nbtour) :
+        draw_text(f"{txt} : {basicval}","",txtcol,73,txtpos_y)
+        pygame.draw.rect(screen,BLACK,[63, rectpos_y, 195, 50],1,10)
+        pygame.display.flip()
+        time.sleep(1)
+        pygame.draw.rect(screen,EF_BLUE,[63, rectpos_y, 195, 50],0,10)
+        pygame.display.flip()
+        basicval += incrementation
+    draw_text(f"{txt} : {basicval}","",txtcol,73,txtpos_y)
+    pygame.draw.rect(screen,BLACK,[63, rectpos_y, 195, 50],1,10)
+    pygame.display.flip()
+
+
+# Initialiser Pygame
+pygame.init()
+
+# Définir la taille de la fenêtre
+width, height = 1366, 720
+screen = pygame.display.set_mode((width, height))
+police = pygame.font.SysFont("Bahnschrift",25)
+
+# Fond
+pygame.draw.rect(screen,EF_BLUE,[10, 10, 250, 154],0,10)
+pygame.display.flip()
+
+# UI Time
+etpgame_ui(12,"images\clock.png",74,75,0,2)
+# UI Coin 
+etpgame_ui(62,"images\coin.png",70,70,2,53)
+# UI Pop
+etpgame_ui(112,"images\city.png",50,50,12,112)
+
+money = 100
+
+def augmenterpib(money):
+    money += money*0.03
+
+#def augmenterpop(pop):
+#    pop += txnatalité
+
+
+if __name__ == "__main__" :
+    thread1 = threading.Thread(target=etpvar_maj,args=("Année",2024,1,2,12,15,BLACK))
+    thread2 = threading.Thread(target=etpvar_maj,args=("Argent",100,100,2,62,65,BLACK))
+    thread3 = threading.Thread(target=etpvar_maj,args=("Pop.",100,100,2,112,115,BLACK))
+
+    thread1.start()
+    thread2.start()
+    thread3.start()
+
+
+# Boucle principale
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
