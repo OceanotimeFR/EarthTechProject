@@ -2,9 +2,6 @@ import pygame, threading, time, random
 from earthtechproject_colors import *
 
 
-
-
-
 def printspeed(word, speed = 50, sound = "", volume = 1):
     word = str(word)
     string = ""
@@ -32,6 +29,7 @@ class Ville:
 
     def augmenterpop(self):
         self.population += self.txnatalite
+
     def DeveloperTransport(self):
         Qualite = input(("Qualité?: Médiocre, Moyenne, Supérieur"))
         if Qualite == "Médiocre":
@@ -68,17 +66,6 @@ class Ville:
             action = int(input("Valeur invalide"))
 
 
-#Annee = 2024
-#Ville1 = Ville("Bezons", random.randint(5, 100), random.randint(1, 38))
-#if __name__ == "__main__":
-#    for i in range(2):
-#        Ville1.taketurn()
-#        Ville1.MiseAJourStats()
-#        Annee += 1
-
-
-
-
 # Fonctions Introduction Texte & Image
 def draw_image(image,x,y):
     screen.blit(image,(x,y))
@@ -97,21 +84,17 @@ def etpgame_ui(pos_y,image,scale_x,scale_y,pos_x,pos2_y) :
     img = pygame.transform.scale(img, (scale_x, scale_y))
     screen.blit(img,(pos_x,pos2_y))
 
-
 # MAJ Variables
-def etpvar_maj(txt,basicval,incrementation,nbtour,rectpos_y,txtpos_y,txtcol) :
+def etpvar_maj(txt,val,nbtour,rectpos_y,txtpos_y,txtcol) :
     import pygame, time
-
     i = 0
     for i in range (nbtour) :
-        draw_text(f"{txt} : {basicval}","",txtcol,73,txtpos_y)
+        draw_text(f"{txt} : {val}","",txtcol,73,txtpos_y)
         pygame.draw.rect(screen,BLACK,[63, rectpos_y, 195, 50],1,10)
         pygame.display.flip()
-        time.sleep(1)
-        pygame.draw.rect(screen,EF_BLUE,[63, rectpos_y, 195, 50],0,10)
+        pygame.draw.rect(screen,GREEN,[63, rectpos_y, 195, 50],0,10)
         pygame.display.flip()
-        basicval += incrementation
-    draw_text(f"{txt} : {basicval}","",txtcol,73,txtpos_y)
+    draw_text(f"{txt} : {val}","",txtcol,73,txtpos_y)
     pygame.draw.rect(screen,BLACK,[63, rectpos_y, 195, 50],1,10)
     pygame.display.flip()
 
@@ -124,35 +107,28 @@ width, height = 1366, 720
 screen = pygame.display.set_mode((width, height))
 police = pygame.font.SysFont("Bahnschrift",25)
 
+
+# Ombre
+pygame.draw.rect(screen,DARK_GREEN,[7, 15, 250, 154],0,10)
+pygame.display.flip()
 # Fond
-pygame.draw.rect(screen,EF_BLUE,[10, 10, 250, 154],0,10)
+pygame.draw.rect(screen,GREEN,[10, 10, 250, 154],0,10)
 pygame.display.flip()
 
-# UI Time
+
+# Ombre
+pygame.draw.rect(screen,DARK_GREEN,[7, 180, 250, 500],0,10)
+pygame.display.flip()
+# Fond
+pygame.draw.rect(screen,GREEN,[10, 175, 250, 500],0,10)
+pygame.display.flip()
+
+
 etpgame_ui(12,"images\clock.png",74,75,0,2)
-# UI Coin 
 etpgame_ui(62,"images\coin.png",70,70,2,53)
-# UI Pop
 etpgame_ui(112,"images\city.png",50,50,12,112)
 
-money = 100
-
-def augmenterpib(money):
-    money += money*0.03
-
-#def augmenterpop(pop):
-#    pop += txnatalité
-
-
-if __name__ == "__main__" :
-    thread1 = threading.Thread(target=etpvar_maj,args=("Année",2024,1,2,12,15,BLACK))
-    thread2 = threading.Thread(target=etpvar_maj,args=("Argent",100,100,2,62,65,BLACK))
-    thread3 = threading.Thread(target=etpvar_maj,args=("Pop.",100,100,2,112,115,BLACK))
-
-    thread1.start()
-    thread2.start()
-    thread3.start()
-
+pygame.display.flip()
 
 # Boucle principale
 running = True
@@ -160,3 +136,28 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        
+        elif event.type == pygame.KEYDOWN:
+        
+            pib = random.randint(1, 38)
+            pop = random.randint(5, 100)
+
+            Annee = 2024
+            Ville1 = Ville("City",pib ,pop)
+            if __name__ == "__main__":
+                for i in range(100):
+
+                    thread1 = threading.Thread(target=etpvar_maj,args=("Année",Annee,2,12,24,BLACK))
+                    thread2 = threading.Thread(target=etpvar_maj,args=("Argent",round(Ville1.pib,2),2,62,74,BLACK))
+                    thread3 = threading.Thread(target=etpvar_maj,args=("Pop.",round(Ville1.population,2),2,112,124,BLACK))
+
+                    thread1.start() ; thread2.start() ; thread3.start()
+                    time.sleep(1)
+                    thread1.join() ; thread2.join() ; thread3.join()
+
+
+
+
+                    Ville1.MiseAJourStats()
+
+                    Annee += 1
