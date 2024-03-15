@@ -1,15 +1,19 @@
 import random
 import pygame
 import time
-
-
-def printspeed(word, speed = 0, sound = 0, volume = 1):
+def play_sound(sound_file, volume = 0.2):
+    pygame.mixer.init()
+    sound = pygame.mixer.Sound(sound_file)
+    sound.set_volume(volume)
+    sound.play()
+def printspeed(word):
     word = str(word)
     string = ""
     for i in range(len(str(word))):
         string += word[i]
         print(f"\r{string}", end=" ")
         time.sleep(0.01)
+    print(" ")
 
 class Ville:
     def __init__(self, name, pib, population, AugmentationPIB = 0.001, Annee = 0):
@@ -37,7 +41,7 @@ class Ville:
             facteurqualite = 30
         if Qualite == 3:
             facteurqualite = 50
-        play_sound(r"C:\Users\royta\OneDrive\Bureau\Code\TMARK_Jingle sncf 2 (ID 0564)_LS.mp3")
+        play_sound("Train.mp3")
         printspeed(f"Facteur de qualité: {facteurqualite}, Prix: {(facteurqualite*(self.tranchedages[1] + self.tranchedages[0]))} Millions")
         self.pib -= (facteurqualite*(self.tranchedages[1] + self.tranchedages[0]))*(10**(-1))
         self.tauxcarbon -= (0.5 + facteurqualite*(1/9)) 
