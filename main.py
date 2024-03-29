@@ -28,7 +28,7 @@ class button():
 snip = font.render("", True, "black")
 counter = 1
 speed = 3
-Money = 0
+Money = random.randint(0, 200)
 def menu():
     global menu_event
     global main_gameevent
@@ -60,8 +60,6 @@ def maingame():
     StatsRect.draw()
     DialogRect = button(0, 400, 600, 200, f"")
     DialogRect.draw()
-    AnswerRect = button(600, 400, 200, 100, f"")
-    AnswerRect.draw()
     dialog(f"Dialog: {str(location)}", (DialogRect.x + 30, DialogRect.y + 20))
     dialog(f"User: {str(locationAnswer)}", (DialogRect.x + 30, DialogRect.y + 125))
     dialog(f"Name: {str(Name)}", (10, 100))
@@ -73,16 +71,42 @@ def maingame():
         main_gameevent = False
     if DialogRect.checkclick():
         ClickedChatbox = True
+def increasepop():
+    global population
+    population+= random.randint(0, 20)
+def decreasepop():
+    global population
+    population -= random.randint(0, 20)
+def cleardialog():
+    global location
+    location = ""
+def askquestionbinary(txt, action1, action2):
+    global location, population, Question1
+    location = txt
+    BtnYes = button(600, 400, 200, 100, f"Yes")
+    BtnNo = button(600,500, 200, 100, f"No")
+    BtnYes.draw()
+    BtnNo.draw()
+    if BtnYes.checkclick():
+        action1()
+        cleardialog()
+        Question1 = False
+    if BtnNo.checkclick():
+        action2()
+        cleardialog()
+        Question1 = False
+
 menu_event = True
 main_gameevent = False
 clock = pygame.time
-population = 0 
+population = random.randint(0, 50)
 location = "Press a key to start"
 locationAnswer = " "
 input = ""
 Name = " "
 NameGiven = False
 ClickedChatbox = False
+Question1 = False
 if __name__ == "__main__":
     while run:
         screen.fill('light blue')
@@ -95,9 +119,9 @@ if __name__ == "__main__":
                 if event.key == pygame.K_RETURN:
                     ClickedChatbox = False
                     if NameGiven == False:
-                        location = "Give a name to your city"
                         Name = locationAnswer
                         NameGiven = True
+                        Question1 = True
                     locationAnswer = " "
                 elif event.key == pygame.K_BACKSPACE:
                     locationAnswer = locationAnswer[0: (len(input)-1)]
@@ -107,8 +131,10 @@ if __name__ == "__main__":
                      Money += 1
                 elif ClickedChatbox:
                     locationAnswer += event.unicode
-                if NameGiven == False:
-                        location = "Give a name to your city"
+        if NameGiven == False:
+            location = "Give a name to your city"
+        if Question1:
+            askquestionbinary("Increase the population?", increasepop, decreasepop)
         if menu_event:
             menu()
         if main_gameevent:
