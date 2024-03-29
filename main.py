@@ -14,7 +14,7 @@ timer = pygame.time.Clock()
 
 class button():
     def __init__(self, x, y, height, width, txt) -> None:
-        self.x, self.y, self.height, self.width, self.txt, self.soundpath = x, y, height, width, txt
+        self.x, self.y, self.height, self.width, self.txt= x, y, height, width, txt
     def draw(self):
         self.btn = pygame.draw.rect(screen, 'light grey', (self.x, self.y, self.height, self.width), 0, 5)
         self.btn = pygame.draw.rect(screen, 'dark grey', (self.x, self.y, self.height, self.width), 5, 5)
