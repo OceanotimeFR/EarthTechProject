@@ -1,5 +1,5 @@
-import pygame, threading, time, random
-from earthtechproject_colors import *
+import pygame, threading, time, random, sys
+from earthtechproject_colors import * ; from roymain import *
 
 
 def printspeed(word, speed = 50, sound = "", volume = 1):
@@ -92,7 +92,7 @@ def etpvar_maj(txt,val,nbtour,rectpos_y,txtpos_y,txtcol) :
         draw_text(f"{txt} : {val}","",txtcol,73,txtpos_y)
         pygame.draw.rect(screen,BLACK,[63, rectpos_y, 195, 50],1,10)
         pygame.display.flip()
-        pygame.draw.rect(screen,GREEN,[63, rectpos_y, 195, 50],0,10)
+        pygame.draw.rect(screen,BISTRE,[63, rectpos_y, 195, 50],0,10)
         pygame.display.flip()
     draw_text(f"{txt} : {val}","",txtcol,73,txtpos_y)
     pygame.draw.rect(screen,BLACK,[63, rectpos_y, 195, 50],1,10)
@@ -109,20 +109,34 @@ police = pygame.font.SysFont("Bahnschrift",25)
 
 
 # Ombre
-pygame.draw.rect(screen,DARK_GREEN,[7, 15, 250, 154],0,10)
+pygame.draw.rect(screen,BISTRE,[7, 15, 250, 154],0,10)
 pygame.display.flip()
 # Fond
-pygame.draw.rect(screen,GREEN,[10, 10, 250, 154],0,10)
+pygame.draw.rect(screen,WOOD,[10, 10, 250, 154],0,10)
 pygame.display.flip()
 
 
-# Ombre
-pygame.draw.rect(screen,DARK_GREEN,[7, 180, 250, 500],0,10)
-pygame.display.flip()
+def init_val() :
+    Ville.Annee = 2024
+    Ville1 = Ville("City",pib ,pop)
+    turn_check = 0
+
 # Fond
-pygame.draw.rect(screen,GREEN,[10, 175, 250, 500],0,10)
-pygame.display.flip()
+def mainrects(t):
+    global rect_x, rect_y
+    rect_x = t
+    rect_y = 355
+    # Rectangle Gauche
+    pygame.draw.rect(screen,WOOD,[t, 355, 1346/3, 355],0,10)
+    pygame.display.flip()
+    # Rectangle Middle
+    pygame.draw.rect(screen,BISTRE,[t, 355, 1346/3, 355],10,15)
+    pygame.display.flip()
+    # Rectangle Droite
+    pygame.draw.rect(screen,WHITE,[t, 355, 1346/3, 355],2,10)
+    pygame.display.flip()
 
+mainrects(10) ; mainrects(455) ; mainrects(900)
 
 etpgame_ui(12,"images\clock.png",74,75,0,2)
 etpgame_ui(62,"images\coin.png",70,70,2,53)
@@ -136,26 +150,49 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        
+            pygame.quit()
+            sys.exit()
+
         elif event.type == pygame.KEYDOWN:
         
             pib = random.randint(1, 38)
             pop = random.randint(5, 100)
 
-            Annee = 2024
-            Ville1 = Ville("City",pib ,pop)
-            if __name__ == "__main__":
-                for i in range(100):
+    if __name__ == "__main__":
 
-                    thread1 = threading.Thread(target=etpvar_maj,args=("Année",Annee,2,12,24,BLACK))
-                    thread2 = threading.Thread(target=etpvar_maj,args=("Argent",round(Ville1.pib,2),2,62,74,BLACK))
-                    thread3 = threading.Thread(target=etpvar_maj,args=("Pop.",round(Ville1.population,2),2,112,124,BLACK))
+        thread4 = threading.Thread(target=dialog,args=(f"Dialogue: {str(location)}", (475, 375)))
+        thread5 = threading.Thread(target=dialog,args=(f"Réponse: {str(locationAnswer)}", (475, 415)))
+        thread6 = threading.Thread(target=dialog,args=(f"Ville: {str(Name)}", (25, 375)))
+
+        thread4.start() ; thread5.start() ; thread6.start()
+        thread4.join() ; thread5.join() ; thread6.join
+
+        for i in range(2):
+
+            thread1 = threading.Thread(target=etpvar_maj,args=("Année",Annee,2,12,24,BLACK))
+            thread2 = threading.Thread(target=etpvar_maj,args=("Argent",round(Ville1.pib,2),2,62,74,BLACK))
+            thread3 = threading.Thread(target=etpvar_maj,args=("Pop.",round(Ville1.population,2),2,112,124,BLACK))
+
+            if event.type == pygame.KEYDOWN and main_gameevent:
+                if event.key == pygame.K_RETURN:
+                    ClickedChatbox = False
+                    if NameGiven == False:
+                            Name = locationAnswer
+                            NameGiven = True
+                            Question1 = True
+                            locationAnswer = " "
+                    elif event.key == pygame.K_BACKSPACE:
+                        locationAnswer = locationAnswer[0: (len(input)-1)]
+                    elif event.key == pygame.K_e and not ClickedChatbox:
+                        population += 1
+                    elif event.key == pygame.K_a and not ClickedChatbox:
+                        Money += 1
+                    elif ClickedChatbox:
+                        locationAnswer += event.unicode
 
                     thread1.start() ; thread2.start() ; thread3.start()
-                    time.sleep(1)
+                    time.sleep(turn_check)
                     thread1.join() ; thread2.join() ; thread3.join()
-
-
 
 
                     Ville1.MiseAJourStats()

@@ -31,7 +31,7 @@ def menu_principal(police):
     while True:
         ecran.fill(VERT)
         # Position titre "Menu Principal" en haut
-        dessiner_texte_centre('Menu Principal', police, BLANC, ecran, hauteur_ecran * 0.2)
+        dessiner_texte_centre('GreenCity', police, BLANC, ecran, hauteur_ecran * 0.2)
 
         # Récupérer la position de la souris lors du clic
         position_souris = pygame.mouse.get_pos()
@@ -67,4 +67,4 @@ def menu_principal(police):
 
         pygame.display.update()
 
-menu_principal(police) 
+#menu_principal(police) 

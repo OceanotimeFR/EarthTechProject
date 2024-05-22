@@ -1,5 +1,5 @@
-import pygame, time, sys, threading, random
-from pygame.locals import * ; from earthtechproject_colors import *
+import pygame, time, sys, threading, random, test2
+from pygame.locals import * ; from earthtechproject_colors import * ; from roymain import *
 
 pygame.init()
 
@@ -196,27 +196,42 @@ while running :
             pib = random.randint(1, 38)
             pop = random.randint(5, 100)
 
-            game_ui()
-
-            Annee = 2024
-            Ville1 = Ville("City",pib ,pop)
-            if __name__ == "__main__":
-                for i in range(5):
-
-                    thread1 = threading.Thread(target=etpvar_maj,args=("Année",Annee,2,12,24,BLACK))
-                    thread2 = threading.Thread(target=etpvar_maj,args=("Argent",round(Ville1.pib,2),2,62,74,BLACK))
-                    thread3 = threading.Thread(target=etpvar_maj,args=("Pop.",round(Ville1.population,2),2,112,124,BLACK))
-
-                    thread1.start() ; thread2.start() ; thread3.start()
-                    time.sleep(1)
-
-                    
-
-                    Ville1.MiseAJourStats()
-
-                    Annee += 1
+        while run:
+            screen.fill('light blue')
+            timer.tick(120)
+            events = pygame.event.get()
+            for event in events:
+                if event.type == pygame.QUIT:
+                    run = False
+                if event.type == pygame.KEYDOWN and main_gameevent:
+                    if event.key == pygame.K_RETURN:
+                        ClickedChatbox = False
+                        if NameGiven == False:
+                            Name = locationAnswer
+                            NameGiven = True
+                            Question1 = True
+                        locationAnswer = " "
+                    elif event.key == pygame.K_BACKSPACE:
+                        locationAnswer = locationAnswer[0: (len(input)-1)]
+                    elif event.key == pygame.K_e and not ClickedChatbox:
+                        population += 1
+                    elif event.key == pygame.K_a and not ClickedChatbox:
+                        Money += 1
+                    elif ClickedChatbox:
+                        locationAnswer += event.unicode
+            if NameGiven == False:
+                location = "Nommez votre ville"
+            if Question1:
+                askquestionbinary("Augmenter la population?", increasepop, decreasepop)
+            elif Question2:
+                askquestionbinary("Augmentez les revenus?", increasepop, decreasepop)
+            if menu_event:
+                menu()
+            if main_gameevent:
+                maingame()
             
-            print("Jeu terminé !")
+            pygame.display.flip()
+                
         if event.type == pygame.QUIT:
             running = False
             sys.exit()
