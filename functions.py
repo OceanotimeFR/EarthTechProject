@@ -1,20 +1,9 @@
 import pygame, time
 from colors import *
 
-# Initialisation
-pygame.init()
+width = 1366
+height = 720
 
-width, height = 1366, 720
-
-efrei = pygame.image.load("images\efrei2.png").convert_alpha()
-screen = pygame.display.set_mode((width, height))
-
-police2 = pygame.font.SysFont("Bahnschrift",50)
-police = pygame.font.SysFont("Bahnschrift",25)
-
-fond = pygame.image.load("images\montagne.jpg").convert_alpha()
-efrei = pygame.image.load("images\efrei2.png").convert_alpha()
-gamelogo = pygame.image.load("images\greencity-transformed.png").convert_alpha()
 
 
 def loading_screen(image,ecran,image2,width,height):
@@ -66,14 +55,14 @@ def printspeed(word, speed = 50, sound = "", volume = 1):
         print(f"\r{string}", end=" ")
         time.sleep(0.01)
 
-def draw_image(image,x,y):
+def draw_image(screen,image,x,y):
     screen.blit(image,(x,y))
 
-def draw_text(text,font,text_col,x,y):
+def draw_text(screen,police,text,font,text_col,x,y):
     txt = police.render(text,True,text_col)
     screen.blit(txt,(x,y))
 
-def etpgame_ui(pos_y,image,scale_x,scale_y,pos_x,pos2_y) :
+def etpgame_ui(screen,police,pos_y,image,scale_x,scale_y,pos_x,pos2_y) :
     import pygame
 
     pygame.draw.rect(screen,BLACK,[63,pos_y, 195, 50],1,10) # Contours
@@ -84,7 +73,7 @@ def etpgame_ui(pos_y,image,scale_x,scale_y,pos_x,pos2_y) :
     screen.blit(img,(pos_x,pos2_y))
 
 
-def game_ui() :
+def game_ui(screen) :
     # Ombre
     pygame.draw.rect(screen,DARK_GREEN,[7, 15, 250, 154],0,10)
     pygame.display.flip()
@@ -98,7 +87,7 @@ def game_ui() :
 
     pygame.display.flip()
 
-def etpvar_maj(txt,val,nbtour,rectpos_y,txtpos_y,txtcol) :
+def etpvar_maj(screen,txt,val,nbtour,rectpos_y,txtpos_y,txtcol) :
     import pygame, time
     i = 0
     for i in range (nbtour) :
@@ -112,7 +101,7 @@ def etpvar_maj(txt,val,nbtour,rectpos_y,txtpos_y,txtcol) :
     pygame.display.flip()
 
 # Fond
-def mainrects(t):
+def mainrects(screen,t):
     global rect_x, rect_y
     rect_x = t
     rect_y = 355
@@ -125,5 +114,3 @@ def mainrects(t):
     # Rectangle Droite
     pygame.draw.rect(screen,WHITE,[t, 355, 1346/3, 355],2,10)
     pygame.display.flip()
-
-mainrects(10) ; mainrects(455) ; mainrects(900)
