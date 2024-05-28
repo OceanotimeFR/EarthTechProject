@@ -7,12 +7,14 @@ width, height = 1366, 720
 pygame.font.init()
 police = "textfonts/CARBON-DROID.ttf"
 
-random_text = ["A vous de redresser la barre !",
-               "Prenez soin de vos citoyens !",
+
+
+random_text = ["Carbone + Dioxygène = CO2",
+               "Le saviez-vous ? Greencity a été créé par 5 personnes !",
                "Astuce : Ne faites pas 'Alt+F4'",
                "Il était une fois une ville verte...",
                "Ecologie ? Ca veut dire quoi ?",
-               "Carbone + Dioxygène = CO2"]
+               "C'est une Early Access !"]
 
 class RunGame(object):
     def __init__(self) :
@@ -77,10 +79,11 @@ class RunGame(object):
             pygame.display.flip()
         time.sleep(temps)
 
-    def gamesave(self,cityname,money,pop,tauxpollution) :
+    def gamesave(self,cityname,year,money,pop,tauxpollution) :
         # Passage en .JSON file
         data = {
             "City":cityname,
+            "Annee":year,
             "Argent":money,
             "Population":pop,
             "TauxPollution":tauxpollution
@@ -151,23 +154,30 @@ class RunGame(object):
 
     def loading_screen(self):
         self.fondu(self.loading1,0,0,0.05)
+        pygame.draw.rect(self.screen, BLACK,[0,0,width,1/8*height]) ; pygame.display.flip()
+        self.drawtext(screen,"Chargement, merci de patienter...",25,WHITE,-320)
         for i in range(3) :
             pygame.draw.rect(self.screen, BLACK,[0,5/6*height,width,1/6*height]) ; pygame.display.flip()
             self.drawtext(screen,random_text[random.randint(0,len(random_text)-1)],25,WHITE,+5/12*height-15)
             pygame.display.flip()
             time.sleep(5)
         pygame.draw.rect(self.screen, BLACK,[0,5/6*height,width,1/6*height]) ; pygame.display.flip()
+        pygame.draw.rect(self.screen, BLACK,[0,0,width,1/8*height]) ; pygame.display.flip()
         self.drawtext(screen,"Prêt à jouer !",25,WHITE,+5/12*height-15)
         pygame.display.flip()
         time.sleep(3)
 
-    def game_ui(self) :
-            
+    def game_ui(self, cityname, year, money, popu, pollu) :
+
             self.Menu_NewGame = pygame.Rect((width // 2 - 100, height // 2 - 50), (0, 0))
             self.ResumeGame = pygame.Rect((width // 2 - 100, height // 2),(0,0))
             self.Menu_LeaveGame = pygame.Rect((width // 2 - 100, height // 2 + 50), (0, 0))
             self.RetourMenu = pygame.Rect((width-100,15),(200,25))
             self.saveButton = pygame.Rect((15,15),(200,25))
+
+            # Bouton Retour Menu
+            backmenu_txt = pygame.font.Font(police,25).render("MENU",True, WHITE) ; screen.blit(backmenu_txt, (width-100,15))
+            save_txt = pygame.font.Font(police,25).render("Sauvegarder",True, WHITE) ; screen.blit(save_txt, (15,15))
 
             # UI
             pos_y = height-height/2+40 ; epaisseur = width/3 ; hauteur = height/2-50
@@ -176,36 +186,53 @@ class RunGame(object):
             pygame.draw.rect(self.screen, BLACK, [width/3, pos_y, epaisseur, hauteur],5)
             pygame.draw.rect(self.screen, BLACK, [2*width/3-5, pos_y, epaisseur, hauteur],5)
 
+            # STATISTIQUES & VARIABLES
+
             stats_text = pygame.font.Font(police,30).render("Statistiques",True, BLACK) ; screen.blit(stats_text, (epaisseur/2-1/2*stats_text.get_size()[0],pos_y+10))
+
+            self.drawtext(screen,cityname,30,BLACK,-340)
+            self.drawtext(screen,cityname,30,WHITE,-343)
+
             pygame.draw.rect(self.screen,BLACK,[30,pos_y+55,55,55],0,100)
             pygame.draw.rect(self.screen,WHITE,[30,pos_y+55,55,55],1,100)
             screen.blit(self.time_icon_tr,(22,pos_y+55))
             year_txt = pygame.font.Font(police,30).render("Année : ",True, BLACK) ; screen.blit(year_txt, (100,pos_y+68))
             
+            pygame.draw.rect(self.screen,GREY,[100+year_txt.get_size()[0]+10,height-height/2+110,100,25])
+            thread_year = threading.Thread(target=self.display,args=(f"{year}", BLACK,(100+year_txt.get_size()[0]+10,height-height/2+110))) ; thread_year.start() ; thread_year.join()
+            
             pygame.draw.rect(self.screen,BLACK,[30,pos_y+115,55,55],0,100)
             pygame.draw.rect(self.screen,WHITE,[30,pos_y+115,55,55],1,100)
             screen.blit(self.money_icon_tr,(32,pos_y+120))
             money_txt = pygame.font.Font(police,30).render("Argent : ",True, BLACK) ; screen.blit(money_txt, (100,pos_y+130))
+
+            pygame.draw.rect(self.screen,GREY,[100+money_txt.get_size()[0]+10,pos_y+130,100,25])
+            thread_money = threading.Thread(target=self.display,args=(f"{money} C", BLACK,(100+money_txt.get_size()[0]+10,pos_y+130))) ; thread_money.start() ; thread_money.join()  
             
             pygame.draw.rect(self.screen,BLACK,[30,pos_y+175,55,55],0,100)
             pygame.draw.rect(self.screen,WHITE,[30,pos_y+175,55,55],1,100)
             screen.blit(self.population_icon_tr,(32,pos_y+182))
             pop_txt = pygame.font.Font(police,30).render("Population : ",True, BLACK) ; screen.blit(pop_txt, (100,pos_y+190))
             
+            pygame.draw.rect(self.screen,GREY,[100+pop_txt.get_size()[0],pos_y+190,100,25])
+            thread_pop = threading.Thread(target=self.display,args=(f"{popu}", BLACK,(100+pop_txt.get_size()[0],pos_y+190))) ; thread_pop.start() ; thread_pop.join()
+
             pygame.draw.rect(self.screen,BLACK,[30,pos_y+235,55,55],0,100)
             pygame.draw.rect(self.screen,WHITE,[30,pos_y+235,55,55],1,100)
             screen.blit(self.pollution_icon_tr,(32,pos_y+237))
             co2_txt = pygame.font.Font(police,30).render("Pollution : ",True, BLACK) ; screen.blit(co2_txt, (100,pos_y+250))
+
+            pygame.draw.rect(self.screen,GREY,[100+pop_txt.get_size()[0],pos_y+250,100,25])
+            thread_pollution = threading.Thread(target=self.display,args=(f"{pollu} %", BLACK,(100+pop_txt.get_size()[0],pos_y+250))) ; thread_pollution.start() ; thread_pollution.join()
             
             dialog_text = pygame.font.Font(police,30).render("Dialogue",True, BLACK) ; screen.blit(dialog_text, (3*epaisseur/2-1/2*dialog_text.get_size()[0],pos_y+10))
 
             actions_text = pygame.font.Font(police,30).render("Actions",True, BLACK) ; screen.blit(actions_text, (5*epaisseur/2-1/2*actions_text.get_size()[0],pos_y+10))
 
-            # Bouton Retour Menu
-            backmenu_txt = pygame.font.Font(police,25).render("MENU",True, WHITE) ; screen.blit(backmenu_txt, (width-100,15))
-            save_txt = pygame.font.Font(police,25).render("Sauvegarder",True, WHITE) ; screen.blit(save_txt, (15,15))
-            pygame.display.flip()
-            
+    def display(self, txt, color, pos):
+        text = pygame.font.Font(police,25).render(txt, True, color)
+        self.screen.blit(text, pos)
+
     def run_game(self):
         intro = False
         menu = True
@@ -235,18 +262,29 @@ class RunGame(object):
 
                 elif self.is_button_clicked(event, self.Menu_NewGame): 
                     menu = False
+
+                    annee = 2024
+                    argent = random.randint(1, 38)
+                    pop = random.randint(5, 100)
+                    pollution = random.randrange(50,85)
+                    nomville = "Your City"
+
                     #RunGame.loading_screen(self) ; time.sleep(1)
-                    pygame.draw.rect(self.screen, BLACK, [0, 0, width, height], 0) ; pygame.display.flip()
-                    RunGame.game_ui(self)
+                    pygame.draw.rect(self.screen, BLACK, [0, 0, width, height], 0)
+                    RunGame.game_ui(self,nomville,annee,argent,pop,pollution)
+                    pygame.display.flip()
 
                 elif self.is_button_clicked(event, self.saveButton) :
-                    self.gamesave("Test",15,15,0.18)
+                    self.gamesave(nomville,annee,argent,pop,pollution)
 
                 elif self.is_button_clicked(event, self.ResumeGame) :
                     menu = False
                     #RunGame.loading_screen(self) ; time.sleep(1)
-                    pygame.draw.rect(self.screen, BLACK, [0, 0, width, height], 0) ; pygame.display.flip()
-                    RunGame.game_ui(self)
+                    pygame.draw.rect(self.screen, BLACK, [0, 0, width, height], 0)
+                    with open ("userdata.json","r") as f:
+                        data = json.load(f)
+                    RunGame.game_ui(self,data["City"],data["Annee"],data["Argent"],data["Population"],data["TauxPollution"])
+                    pygame.display.flip()
 
                 elif self.is_button_clicked(event, self.Menu_LeaveGame) : 
                     pygame.draw.rect(self.screen, BLACK, [0, 0, width, height], 0) ; pygame.display.flip()
@@ -256,22 +294,12 @@ class RunGame(object):
 
                 elif self.is_button_clicked(event, self.RetourMenu) : 
                     pygame.draw.rect(self.screen, BLACK, [0, 0, width, height], 0) ; pygame.display.flip()
-                    #^ self.savegame() !!!!
                     menu = True
+
+
+
+    
 """
-    Annee = 2024
-    pib = random.randint(1, 38)
-    pop = random.randint(5, 100)
-    Ville("City",pib ,pop)
-    turn_check = 0
-
-    thread4 = threading.Thread(target=dialog,args=(f"Dialogue: {str(location)}", (475, 375)))
-    thread5 = threading.Thread(target=dialog,args=(f"Réponse: {str(locationAnswer)}", (475, 415)))
-    thread6 = threading.Thread(target=dialog,args=(f"Ville: {str(Name)}", (25, 375)))
-
-    thread4.start() ; thread5.start() ; thread6.start()
-    thread4.join() ; thread5.join() ; thread6.join
-
     for i in range(2):
 
         thread1 = threading.Thread(target=functions.etpvar_maj,args=("Année",Annee,2,12,24,BLACK))
