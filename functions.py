@@ -18,34 +18,9 @@ def loading_screen(image,ecran,image2,width,height):
     time.sleep(1)
 
     #? Reset Ecran
-    pygame.draw.rect(ecran,WHITE,[0, 0, width, height],0)
+    pygame.draw.rect(ecran,BLACK,[0, 0, width, height],0)
     pygame.display.flip()
 
-
-    #* Loading Logo GreenCity
-    for i in range (101) :
-        image2.set_alpha(i)
-        ecran.blit(image2,(500,150))
-        time.sleep(0.025)
-        pygame.display.flip()
-        if i==100 : break
-        pygame.display.flip()
-    time.sleep(1)
-
-
-    #* Bordure de la barre de chargement
-    pygame.draw.rect(ecran,BLACK,[width/2-250, 500, 500, 35],1)
-    pygame.display.flip()
-
-
-    #* Barre de chargement
-    progress = 0
-    for i in range (500) :
-        progress+=1
-        time.sleep(0.0025)
-        pygame.draw.rect(ecran,GREEN,[width/2-250, 500, progress, 35],0)
-        pygame.display.flip()
-    time.sleep(3)
 
 def printspeed(word, speed = 50, sound = "", volume = 1):
     word = str(word)

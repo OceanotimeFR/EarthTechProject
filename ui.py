@@ -7,7 +7,7 @@ width, height = 1366, 720
 pygame.font.init()
 police = "textfonts/CARBON-DROID.ttf"
 
-
+nomville = "Your City"
 
 random_text = ["Carbone + Dioxygène = CO2",
                "Le saviez-vous ? Greencity a été créé par 5 personnes !",
@@ -41,6 +41,14 @@ class RunGame(object):
         self.loading1 = pygame.transform.scale(pygame.image.load("images/titlefont.png"),(width, height)).convert_alpha()
         self.alpha = 0
         self.loading1.set_alpha(self.alpha)
+
+        # UI Fonts Cityscapes
+        self.font1 = pygame.transform.scale(pygame.image.load("images/ui_fonts/Font1.png"),(width, height/2+40))
+        self.font2 = pygame.transform.scale(pygame.image.load("images/ui_fonts/Font2.png"),(width, height/2+40))
+        self.font3 = pygame.transform.scale(pygame.image.load("images/ui_fonts/Font3.png"),(width, height/2+40))
+        self.font4 = pygame.transform.scale(pygame.image.load("images/ui_fonts/Font4.png"),(width, height/2+40))
+        self.font5 = pygame.transform.scale(pygame.image.load("images/ui_fonts/Font5.png"),(width, height/2+40))
+        self.font6 = pygame.transform.scale(pygame.image.load("images/ui_fonts/Font6.png"),(width, height/2+40))
 
         # Initialisation Icones
         self.admin_icon = pygame.image.load("images/icones/administration.png")
@@ -91,21 +99,6 @@ class RunGame(object):
         with open('userdata.json', 'w') as outfile:
             json.dump(data, outfile,indent=2)
 
-    def loading_bar(self,color,x,y):
-        #* Bordure de la barre de chargement
-        pygame.draw.rect(self.screen,BLACK,[x, y, 500, 35],1)
-        pygame.display.flip()
-
-        #* Barre de chargement
-        progress = 0
-        for i in range (500) :
-            progress+=1
-            time.sleep(0.0025)
-            pygame.draw.rect(self.screen,color,[x, y, progress, 35],0)
-            pygame.display.flip()
-            i+=1
-        time.sleep(3)
-
     def draw_button(self, screen, color, rect, text, police_size):
         pygame.draw.rect(screen, color, rect)
         text_surf = pygame.font.Font(police,police_size).render(text, True, WHITE)
@@ -142,7 +135,7 @@ class RunGame(object):
         self.drawtext(screen,"Nouvelle Partie",25,BLACK,-47) ; self.drawtext(screen,"Nouvelle Partie",25,WHITE,-50)
         self.drawtext(screen,"Reprendre Partie",25,BLACK,3) ; self.drawtext(screen,"Reprendre Partie",25,WHITE,0)
         self.drawtext(screen,"Quitter",25,BLACK,53) ; self.drawtext(screen,"Quitter",25,WHITE,50)
-        versiontext = pygame.font.Font(police,15).render("Early Access - Build Version 0.1.1a",True, WHITE) ; screen.blit(versiontext, (width-versiontext.get_size()[0]-3,height-versiontext.get_size()[1]-2))
+        versiontext = pygame.font.Font(police,15).render("Early Access - Build Version 0.1.2",True, WHITE) ; screen.blit(versiontext, (width-versiontext.get_size()[0]-3,height-versiontext.get_size()[1]-2))
         mouse_pos = pygame.mouse.get_pos()
         if self.Menu_NewGame.collidepoint(mouse_pos):
             self.drawtext(screen,"Nouvelle Partie",25,YELLOW,-50)
@@ -167,7 +160,10 @@ class RunGame(object):
         pygame.display.flip()
         time.sleep(3)
 
+
     def game_ui(self, cityname, year, money, popu, pollu) :
+
+            global nom_th2, annee_th2, argent_th2, population_th2, tco2_th2
 
             self.Menu_NewGame = pygame.Rect((width // 2 - 100, height // 2 - 50), (0, 0))
             self.ResumeGame = pygame.Rect((width // 2 - 100, height // 2),(0,0))
@@ -175,8 +171,15 @@ class RunGame(object):
             self.RetourMenu = pygame.Rect((width-100,15),(200,25))
             self.saveButton = pygame.Rect((15,15),(200,25))
 
+            #Cityscape Font
+            self.cityscape(popu)
+            # Bande Noire : Top Screen
+            pygame.draw.rect(self.screen,GREY,[0,0,width,60])
+
             # Bouton Retour Menu
+            backmenu_txtBG = pygame.font.Font(police,25).render("MENU",True, BLACK) ; screen.blit(backmenu_txtBG, (width-100,18))
             backmenu_txt = pygame.font.Font(police,25).render("MENU",True, WHITE) ; screen.blit(backmenu_txt, (width-100,15))
+            save_txtBG = pygame.font.Font(police,25).render("Sauvegarder",True, BLACK) ; screen.blit(save_txtBG, (15,18))
             save_txt = pygame.font.Font(police,25).render("Sauvegarder",True, WHITE) ; screen.blit(save_txt, (15,15))
 
             # UI
@@ -192,6 +195,7 @@ class RunGame(object):
 
             self.drawtext(screen,cityname,30,BLACK,-340)
             self.drawtext(screen,cityname,30,WHITE,-343)
+            nom_th2 = cityname
 
             pygame.draw.rect(self.screen,BLACK,[30,pos_y+55,55,55],0,100)
             pygame.draw.rect(self.screen,WHITE,[30,pos_y+55,55,55],1,100)
@@ -200,7 +204,8 @@ class RunGame(object):
             
             pygame.draw.rect(self.screen,GREY,[100+year_txt.get_size()[0]+10,height-height/2+110,100,25])
             thread_year = threading.Thread(target=self.display,args=(f"{year}", BLACK,(100+year_txt.get_size()[0]+10,height-height/2+110))) ; thread_year.start() ; thread_year.join()
-            
+            annee_th2 = year
+
             pygame.draw.rect(self.screen,BLACK,[30,pos_y+115,55,55],0,100)
             pygame.draw.rect(self.screen,WHITE,[30,pos_y+115,55,55],1,100)
             screen.blit(self.money_icon_tr,(32,pos_y+120))
@@ -208,7 +213,8 @@ class RunGame(object):
 
             pygame.draw.rect(self.screen,GREY,[100+money_txt.get_size()[0]+10,pos_y+130,100,25])
             thread_money = threading.Thread(target=self.display,args=(f"{money} C", BLACK,(100+money_txt.get_size()[0]+10,pos_y+130))) ; thread_money.start() ; thread_money.join()  
-            
+            argent_th2 = money
+
             pygame.draw.rect(self.screen,BLACK,[30,pos_y+175,55,55],0,100)
             pygame.draw.rect(self.screen,WHITE,[30,pos_y+175,55,55],1,100)
             screen.blit(self.population_icon_tr,(32,pos_y+182))
@@ -216,6 +222,7 @@ class RunGame(object):
             
             pygame.draw.rect(self.screen,GREY,[100+pop_txt.get_size()[0],pos_y+190,100,25])
             thread_pop = threading.Thread(target=self.display,args=(f"{popu}", BLACK,(100+pop_txt.get_size()[0],pos_y+190))) ; thread_pop.start() ; thread_pop.join()
+            population_th2 = popu
 
             pygame.draw.rect(self.screen,BLACK,[30,pos_y+235,55,55],0,100)
             pygame.draw.rect(self.screen,WHITE,[30,pos_y+235,55,55],1,100)
@@ -224,14 +231,32 @@ class RunGame(object):
 
             pygame.draw.rect(self.screen,GREY,[100+pop_txt.get_size()[0],pos_y+250,100,25])
             thread_pollution = threading.Thread(target=self.display,args=(f"{pollu} %", BLACK,(100+pop_txt.get_size()[0],pos_y+250))) ; thread_pollution.start() ; thread_pollution.join()
-            
+            tco2_th2 = pollu
+
             dialog_text = pygame.font.Font(police,30).render("Dialogue",True, BLACK) ; screen.blit(dialog_text, (3*epaisseur/2-1/2*dialog_text.get_size()[0],pos_y+10))
 
             actions_text = pygame.font.Font(police,30).render("Actions",True, BLACK) ; screen.blit(actions_text, (5*epaisseur/2-1/2*actions_text.get_size()[0],pos_y+10))
 
+            self.gamesave(cityname, year, money, popu, pollu)
+
     def display(self, txt, color, pos):
         text = pygame.font.Font(police,25).render(txt, True, color)
         self.screen.blit(text, pos)
+
+    def cityscape(self, pop):
+        if pop <= 50 :
+            screen.blit(self.font1,(0, 0, width, height/2))
+        elif 50 < pop <= 100 :
+            screen.blit(self.font2,(0, 0,width,height/2))
+        elif 100 < pop <= 200 :
+            screen.blit(self.font3,(0, 0,width,height/2))
+        elif 200 < pop <= 300 :
+            screen.blit(self.font4,(0, 0,width,height/2))
+        elif 300 < pop <= 500 :
+            screen.blit(self.font5,(0, 0,width,height/2))
+        elif 500 < pop :
+            screen.blit(self.font6,(0, 0,width,height/2))
+        pygame.display.flip()
 
     def run_game(self):
         intro = False
@@ -243,13 +268,9 @@ class RunGame(object):
                 x3 = width/2-250 ; y3 = height/2 + 100
                 # Affichage Logo EFREI
                 self.fondu(self.image_intro1,x1,y1,1)
-                pygame.draw.rect(self.screen, WHITE,[0,0,width,height], 0)
+                pygame.draw.rect(self.screen, BLACK,[0,0,width,height], 0)
                 pygame.display.flip()
                 time.sleep(1)
-                # Affichage Logo Jeu
-                self.fondu(self.image_intro2,x2,y2,1)
-                self.loading_bar(GREEN,x3,y3)
-                pygame.display.flip()
                 intro = False
                 menu = True
 
@@ -269,13 +290,15 @@ class RunGame(object):
                     pollution = random.randrange(50,85)
                     nomville = "Your City"
 
+                    self.gamesave(nomville, annee, argent, pop, pollution)
+
                     #RunGame.loading_screen(self) ; time.sleep(1)
                     pygame.draw.rect(self.screen, BLACK, [0, 0, width, height], 0)
                     RunGame.game_ui(self,nomville,annee,argent,pop,pollution)
                     pygame.display.flip()
 
                 elif self.is_button_clicked(event, self.saveButton) :
-                    self.gamesave(nomville,annee,argent,pop,pollution)
+                    self.gamesave(nom_th2,annee_th2,argent_th2,population_th2,tco2_th2)
 
                 elif self.is_button_clicked(event, self.ResumeGame) :
                     menu = False
@@ -294,43 +317,9 @@ class RunGame(object):
 
                 elif self.is_button_clicked(event, self.RetourMenu) : 
                     pygame.draw.rect(self.screen, BLACK, [0, 0, width, height], 0) ; pygame.display.flip()
+                    self.gamesave(nom_th2,annee_th2,argent_th2,population_th2,tco2_th2)
                     menu = True
 
-
-
-    
-"""
-    for i in range(2):
-
-        thread1 = threading.Thread(target=functions.etpvar_maj,args=("Année",Annee,2,12,24,BLACK))
-        thread2 = threading.Thread(target=functions.etpvar_maj,args=(f"round(Ville.pib,2)M €",2,62,74,BLACK))
-        thread3 = threading.Thread(target=functions.etpvar_maj,args=("Pop.",round(Ville.population,2),2,112,124,BLACK))
-
-        if event.type == pygame.KEYDOWN and main_gameevent:
-            if event.key == pygame.K_RETURN:
-                ClickedChatbox = False
-                if NameGiven == False:
-                        Name = locationAnswer
-                        NameGiven = True
-                        Question1 = True
-                        locationAnswer = " "
-                elif event.key == pygame.K_BACKSPACE:
-                    locationAnswer = locationAnswer[0: (len(input)-1)]
-                elif event.key == pygame.K_e and not ClickedChatbox:
-                    population += 1
-                elif event.key == pygame.K_a and not ClickedChatbox:
-                    Money += 1
-                elif ClickedChatbox:
-                    locationAnswer += event.unicode
-
-                thread1.start() ; thread2.start() ; thread3.start()
-                time.sleep(turn_check)
-                thread1.join() ; thread2.join() ; thread3.join()
-
-                Ville.MiseAJourStats()
-
-                Annee += 1
-"""
 
 if __name__ == "__main__":
     game = RunGame()

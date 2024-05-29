@@ -3,8 +3,6 @@ from pygame.locals import * ; from colors import * ; from testing.roymain import
 
 pygame.init()
 
-# mainrects(10) ; mainrects(455) ; mainrects(900)
-
 icon = pygame.image.load("images/greencity-transformed.png")
 pygame.display.set_caption("GREENCITY : For a new home") ; pygame.display.set_icon(icon)
 
