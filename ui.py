@@ -1,6 +1,6 @@
 import pygame, threading, time, random, sys, functions
 from colors import * ; from testing.roymain import * ; from villeclass import * ; import json
-
+pygame.mixer.init()
 
 # Initialisation
 width, height = 1366, 720
@@ -25,7 +25,7 @@ class RunGame(object):
         width, height = 1366, 720
         self.screen = pygame.display.set_mode((width, height))
         self.menuimage = pygame.transform.scale(pygame.image.load("images/titlefont2.png"),(width, height))
-
+        self.tour = 0
         self.whitescreen = pygame.transform.scale(pygame.image.load("images/coloredfonts/whites.png"),(width, height))
         self.blackscreen = pygame.transform.scale(pygame.image.load("images/coloredfonts/blacks.png"),(width, height))
 
@@ -228,28 +228,42 @@ class RunGame(object):
             dialog_text = pygame.font.Font(police,30).render("Dialogue",True, BLACK) ; screen.blit(dialog_text, (3*epaisseur/2-1/2*dialog_text.get_size()[0],pos_y+10))
 
             actions_text = pygame.font.Font(police,30).render("Actions",True, BLACK) ; screen.blit(actions_text, (5*epaisseur/2-1/2*actions_text.get_size()[0],pos_y+10))
-
+            self.display("J: Invst Eco", (255,255,255),(5*epaisseur/2-1/2*actions_text.get_size()[0],pos_y+68))
+            self.display("Actions 2", (255,255,255),(5*epaisseur/2-1/2*actions_text.get_size()[0],pos_y+68*2))
+            self.display("Actions 3", (255,255,255),(5*epaisseur/2-1/2*actions_text.get_size()[0],pos_y+68*3))
     def display(self, txt, color, pos):
         text = pygame.font.Font(police,25).render(txt, True, color)
         self.screen.blit(text, pos)
-
+    def play_sound(self, sound_file):
+        pygame.mixer.music.load(sound_file)
+        pygame.mixer.music.play()
+    def background_sound(self, path):
+        pygame.mixer.init()
+        sound = pygame.mixer.Sound(path) 
+        sound.set_volume(0.1) 
+        sound.play(-1)
+    def developperProduitLocaux(self, pollution, argent):
+        pollution -= 0.5
+        argent -= argent*0.09
+        return round(pollution,1), round(argent, 1)
     def run_game(self):
-        intro = False
+        
+        intro = True
         menu = True
+        self.background_sound("MainTheme.mp3")
         while True:
+            if self.tour == 3:
+                self.tour = 0
+                annee+=1
+                pollution += round(population*0.1, 0)
+                pop += round(((1/2)*pop*0.8), 0)
             if intro : 
                 x1 = width/2-(331/2) ; y1 = height/2 - (123/2)
-                x2 = width/2-(375/2) ; y2 = height/2 - (375/2+50)
-                x3 = width/2-250 ; y3 = height/2 + 100
                 # Affichage Logo EFREI
                 self.fondu(self.image_intro1,x1,y1,1)
                 pygame.draw.rect(self.screen, WHITE,[0,0,width,height], 0)
                 pygame.display.flip()
                 time.sleep(1)
-                # Affichage Logo Jeu
-                self.fondu(self.image_intro2,x2,y2,1)
-                self.loading_bar(GREEN,x3,y3)
-                pygame.display.flip()
                 intro = False
                 menu = True
 
@@ -260,16 +274,27 @@ class RunGame(object):
                     pygame.quit()
                     sys.exit()
 
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_j:
+                        self.tour += 1
+                        pollution, argent = self.developperProduitLocaux(pollution, argent)
+                        RunGame.game_ui(self,nomville,annee,argent,pop,pollution)
+                        pygame.display.flip()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_k:
+                        argent += 1
+                        self.tour += 1
+                        RunGame.game_ui(self,nomville,annee,argent,pop,pollution)
+                        pygame.display.flip()
                 elif self.is_button_clicked(event, self.Menu_NewGame): 
                     menu = False
-
                     annee = 2024
                     argent = random.randint(1, 38)
                     pop = random.randint(5, 100)
                     pollution = random.randrange(50,85)
                     nomville = "Your City"
 
-                    #RunGame.loading_screen(self) ; time.sleep(1)
+                    RunGame.loading_screen(self) ; time.sleep(1)
                     pygame.draw.rect(self.screen, BLACK, [0, 0, width, height], 0)
                     RunGame.game_ui(self,nomville,annee,argent,pop,pollution)
                     pygame.display.flip()
