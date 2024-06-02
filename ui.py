@@ -1,6 +1,6 @@
 import pygame, threading, time, random, sys, functions
 from colors import * ; from testing.roymain import * ; from villeclass import * ; import json
-
+pygame.mixer.init()
 
 # Initialisation
 width, height = 1366, 720
@@ -16,6 +16,15 @@ random_text = ["Carbone + Dioxygène = CO2",
                "Ecologie ? Ca veut dire quoi ?",
                "C'est une Early Access !"]
 
+badluck_txt = ["L'isolation a mal été réalisée. Vous devez payer.",
+               "Des intempéries ont abîmé le batîment, et vous devez le réparer.",
+               "Vous avez été surpris en pleine fraude fiscale !"]
+
+luck_txt = ["L'infrastructure s'est montrée fructueuse pour la ville !",
+            "Le bâtiment a bien été isolé."]
+
+random_event = ["Visite d'une autorité locale'", "Visite du Ministre de l'Ecologie","Manifestation contre l'environnement",""]
+
 class RunGame(object):
     def __init__(self) :
         # Initialiser Pygame
@@ -25,7 +34,7 @@ class RunGame(object):
         width, height = 1366, 720
         self.screen = pygame.display.set_mode((width, height))
         self.menuimage = pygame.transform.scale(pygame.image.load("images/titlefont2.png"),(width, height))
-
+        self.tour = 0
         self.whitescreen = pygame.transform.scale(pygame.image.load("images/coloredfonts/whites.png"),(width, height))
         self.blackscreen = pygame.transform.scale(pygame.image.load("images/coloredfonts/blacks.png"),(width, height))
 
@@ -51,23 +60,13 @@ class RunGame(object):
         self.font6 = pygame.transform.scale(pygame.image.load("images/ui_fonts/Font6.png"),(width, height/2+40))
 
         # Initialisation Icones
-        self.admin_icon = pygame.image.load("images/icones/administration.png")
-        self.admin_icon_tr = pygame.transform.scale(self.admin_icon,(50,40))
 
-        self.money_icon = pygame.image.load("images/icones/money.png")
-        self.money_icon_tr = pygame.transform.scale(self.money_icon,(50,45))
-
-        self.pollution_icon = pygame.image.load("images/icones/pollution.png")
-        self.pollution_icon_tr = pygame.transform.scale(self.pollution_icon,(50,50))
-
-        self.population_icon = pygame.image.load("images/icones/population.png")
-        self.population_icon_tr = pygame.transform.scale(self.population_icon,(50,40))
-
-        self.time_icon = pygame.image.load("images/icones/time.png")
-        self.time_icon_tr = pygame.transform.scale(self.time_icon,(70,53))
-
-        self.upgrade_icon = pygame.image.load("images/icones/upgrade.png")
-        self.upgrade_icon_tr = pygame.transform.scale(self.upgrade_icon,(50,40))
+        self.admin_icon_tr = self.imageloadnsize("images/icones/icones_stats/administration.png",(50,40))
+        self.money_icon_tr = self.imageloadnsize("images/icones/icones_stats/money.png",(50,45))
+        self.pollution_icon_tr = self.imageloadnsize("images/icones/icones_stats/pollution.png",(50,50))
+        self.population_icon_tr = self.imageloadnsize("images/icones/icones_stats/population.png",(50,40))
+        self.time_icon_tr = self.imageloadnsize("images/icones/icones_stats/time.png",(70,53))
+        self.upgrade_icon_tr = self.imageloadnsize("images/icones/icones_stats/upgrade.png",(50,40))
 
         # Menu Buttons
         self.Menu_NewGame = pygame.Rect((width // 2 - 100, height // 2 - 50), (200, 25))
@@ -76,6 +75,11 @@ class RunGame(object):
         self.RetourMenu = pygame.Rect((width-100,15),(200,25))
         self.saveButton = pygame.Rect((15,15),(200,25))
 
+    def imageloadnsize(self, image, size):
+        img = pygame.image.load(image)
+        img = pygame.transform.scale(img,size)
+        return img
+    
     def fondu(self, image, x, y, temps):
         for i in range(101):
             image.set_alpha(i)
@@ -173,8 +177,10 @@ class RunGame(object):
 
             #Cityscape Font
             self.cityscape(popu)
-            # Bande Noire : Top Screen
+            # Bande Top Screen
             pygame.draw.rect(self.screen,GREY,[0,0,width,60])
+            pygame.draw.rect(self.screen,GREY,[width/3,40,width/3,60],0,0,0,0,5,5)
+            pygame.draw.rect(self.screen,BLACK,[width/3+10,62,width/3-20,30],0,5)
 
             # Bouton Retour Menu
             backmenu_txtBG = pygame.font.Font(police,25).render("MENU",True, BLACK) ; screen.blit(backmenu_txtBG, (width-100,18))
@@ -194,7 +200,7 @@ class RunGame(object):
             stats_text = pygame.font.Font(police,30).render("Statistiques",True, BLACK) ; screen.blit(stats_text, (epaisseur/2-1/2*stats_text.get_size()[0],pos_y+10))
 
             self.drawtext(screen,cityname,30,BLACK,-340)
-            self.drawtext(screen,cityname,30,WHITE,-343)
+            self.drawtext(screen,cityname,30,GREEN,-343)
             nom_th2 = cityname
 
             pygame.draw.rect(self.screen,BLACK,[30,pos_y+55,55,55],0,100)
@@ -212,7 +218,7 @@ class RunGame(object):
             money_txt = pygame.font.Font(police,30).render("Argent : ",True, BLACK) ; screen.blit(money_txt, (100,pos_y+130))
 
             pygame.draw.rect(self.screen,GREY,[100+money_txt.get_size()[0]+10,pos_y+130,100,25])
-            thread_money = threading.Thread(target=self.display,args=(f"{money} C", BLACK,(100+money_txt.get_size()[0]+10,pos_y+130))) ; thread_money.start() ; thread_money.join()  
+            thread_money = threading.Thread(target=self.display,args=(f"{round(money,0)} C", BLACK,(100+money_txt.get_size()[0]+10,pos_y+130))) ; thread_money.start() ; thread_money.join()  
             argent_th2 = money
 
             pygame.draw.rect(self.screen,BLACK,[30,pos_y+175,55,55],0,100)
@@ -221,7 +227,7 @@ class RunGame(object):
             pop_txt = pygame.font.Font(police,30).render("Population : ",True, BLACK) ; screen.blit(pop_txt, (100,pos_y+190))
             
             pygame.draw.rect(self.screen,GREY,[100+pop_txt.get_size()[0],pos_y+190,100,25])
-            thread_pop = threading.Thread(target=self.display,args=(f"{popu}", BLACK,(100+pop_txt.get_size()[0],pos_y+190))) ; thread_pop.start() ; thread_pop.join()
+            thread_pop = threading.Thread(target=self.display,args=(f"{round(popu,0)}", BLACK,(100+pop_txt.get_size()[0],pos_y+190))) ; thread_pop.start() ; thread_pop.join()
             population_th2 = popu
 
             pygame.draw.rect(self.screen,BLACK,[30,pos_y+235,55,55],0,100)
@@ -230,42 +236,116 @@ class RunGame(object):
             co2_txt = pygame.font.Font(police,30).render("Pollution : ",True, BLACK) ; screen.blit(co2_txt, (100,pos_y+250))
 
             pygame.draw.rect(self.screen,GREY,[100+pop_txt.get_size()[0],pos_y+250,100,25])
-            thread_pollution = threading.Thread(target=self.display,args=(f"{pollu} %", BLACK,(100+pop_txt.get_size()[0],pos_y+250))) ; thread_pollution.start() ; thread_pollution.join()
+            thread_pollution = threading.Thread(target=self.display,args=(f"{round(pollu,0)} T", BLACK,(100+pop_txt.get_size()[0],pos_y+250))) ; thread_pollution.start() ; thread_pollution.join()
             tco2_th2 = pollu
 
             dialog_text = pygame.font.Font(police,30).render("Dialogue",True, BLACK) ; screen.blit(dialog_text, (3*epaisseur/2-1/2*dialog_text.get_size()[0],pos_y+10))
 
             actions_text = pygame.font.Font(police,30).render("Actions",True, BLACK) ; screen.blit(actions_text, (5*epaisseur/2-1/2*actions_text.get_size()[0],pos_y+10))
 
+            self.display("[J] Dev. Produits Locaux", BLACK,(5*epaisseur/2-1/2*actions_text.get_size()[0]-150,pos_y+71))
+            self.display("[J] Dev. Produits Locaux", WHITE,(5*epaisseur/2-1/2*actions_text.get_size()[0]-150,pos_y+68))
+            self.display("[K] Dev. Transports", BLACK,(5*epaisseur/2-1/2*actions_text.get_size()[0]-150,pos_y+68*2+3))
+            self.display("[K] Dev. Transports", WHITE,(5*epaisseur/2-1/2*actions_text.get_size()[0]-150,pos_y+68*2))
+            self.display("[L] Dev. Infrastructures", BLACK,(5*epaisseur/2-1/2*actions_text.get_size()[0]-150,pos_y+68*3+3))
+            self.display("[L] Dev. Infrastructures", WHITE,(5*epaisseur/2-1/2*actions_text.get_size()[0]-150,pos_y+68*3))
+
             self.gamesave(cityname, year, money, popu, pollu)
 
-    def display(self, txt, color, pos):
+    def display(self, txt,color, pos):
         text = pygame.font.Font(police,25).render(txt, True, color)
         self.screen.blit(text, pos)
 
     def cityscape(self, pop):
-        if pop <= 50 :
+        if pop <= 1000 :
+            self.display("Petite Ville",(255,0,0),(0,0))
             screen.blit(self.font1,(0, 0, width, height/2))
-        elif 50 < pop <= 100 :
+            pygame.display.flip()
+        elif 1000 < pop <= 25000 :
             screen.blit(self.font2,(0, 0,width,height/2))
-        elif 100 < pop <= 200 :
+        elif 25000 < pop <= 250000 :
             screen.blit(self.font3,(0, 0,width,height/2))
-        elif 200 < pop <= 300 :
+        elif 250000 < pop <= 1000000 :
             screen.blit(self.font4,(0, 0,width,height/2))
-        elif 300 < pop <= 500 :
+        elif 1000000 < pop <= 5000000 :
             screen.blit(self.font5,(0, 0,width,height/2))
-        elif 500 < pop :
+        elif 5000000 < pop : # 5M+ pop
             screen.blit(self.font6,(0, 0,width,height/2))
         pygame.display.flip()
 
+# Display Text
+    def display(self, txt, color, pos):
+        text = pygame.font.Font(police,25).render(txt, True, color)
+        self.screen.blit(text, pos)
+
+# Musique Fond & Sons
+    def play_sound(self, sound_file):
+        pygame.mixer.music.load(sound_file)
+        pygame.mixer.music.play()
+    def background_sound(self, path):
+        pygame.mixer.init()
+        sound = pygame.mixer.Sound(path) 
+        sound.set_volume(0.1) 
+        sound.play(-1)
+
+# Fonctions Jeu
+    def developperProduitLocaux(self, pollution, argent):
+        pollution *= 1.05
+        argent *= 0.95
+        return round(pollution,1), round(argent, 1)
+
+    def developperTransports(self, pollution, population, argent):
+        # Transports Combustion / Electrique
+        pollution *= 1.05
+        chance = random.randint(0,2)
+        if chance == 0 : population *= 0.95
+        elif chance == 1 : population *= 1.05
+        elif chance == 2 : population *= 1.25
+        argent *= 0.85
+        return round(pollution,1), round(population,1), round(argent, 1)
+
+    def developperInfrastructures(self, pollution, population, argent) :
+        pollution *= 1.02
+        chance = random.randint(0,2)
+        if chance == 0 : population *= 0.95 ; argent *= 0.98 ; pollution *= 1.25 #^; self.display(random.randint(0,len(badluck_txt)),WHITE,)
+        elif chance == 1 : population *= 1.05 ; argent *= 1.01 ; pollution *= 1.05
+        elif chance == 2 : population *= 1.25 ; argent *= 1.05 ; pollution *= 0.95
+        argent *= 0.9
+        return round(pollution,1), round(population,1), round(argent, 1)
+
+    def increasepop():
+        global population
+        population+= random.randint(0, 20)
+        return(round(population,0))
+    def decreasepop():
+        global population
+        population -= random.randint(0, 20)
+        return(round(population,0))
+    def increasemoney():
+        global Money
+        Money+= random.randint(0, 20)
+        return(round(Money,1))
+    def decreasemoney():
+        global Money
+        Money -= random.randint(0, 20)
+        return(round(Money,1))
+
+# Main Game
     def run_game(self):
-        intro = False
+        intro = True
         menu = True
+        thread_music = threading.Thread(target=self.background_sound, args=("soundtrack/music/MainTheme.mp3",))
+        play_song = False
+
         while True:
+            if self.tour == 3:
+                self.tour = 0
+                annee+=1
+                pollution += round(population*0.1, 1)
+                pop += round(((1/2)*pop*0.8), 0)
+                argent += round(argent*0.1, 1)
             if intro : 
                 x1 = width/2-(331/2) ; y1 = height/2 - (123/2)
-                x2 = width/2-(375/2) ; y2 = height/2 - (375/2+50)
-                x3 = width/2-250 ; y3 = height/2 + 100
                 # Affichage Logo EFREI
                 self.fondu(self.image_intro1,x1,y1,1)
                 pygame.draw.rect(self.screen, BLACK,[0,0,width,height], 0)
@@ -273,6 +353,11 @@ class RunGame(object):
                 time.sleep(1)
                 intro = False
                 menu = True
+                play_song = True
+            
+            if play_song :
+                thread_music.start()
+                play_song = False
 
             for event in pygame.event.get():
                 if menu : 
@@ -281,18 +366,44 @@ class RunGame(object):
                     pygame.quit()
                     sys.exit()
 
+                #elif self.is_button_clicked(event, self.button) :
+                    return
+
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_j:
+                        self.tour += 1
+                        pollution, argent = self.developperProduitLocaux(pollution, argent)
+                        RunGame.game_ui(self,nomville,annee,argent,pop,pollution)
+                        pygame.display.flip()
+                    elif event.key == pygame.K_k:
+                        chance = random.randint(0,1)
+                        pollution, pop, argent = self.developperTransports(pollution, pop, argent)
+                        self.tour += 1
+                        RunGame.game_ui(self,nomville,annee,argent,pop,pollution)
+                        pygame.display.flip()
+                    elif event.key == pygame.K_l:
+                        pollution, pop, argent = self.developperInfrastructures(pollution, pop, argent)
+                        self.tour += 1
+                        RunGame.game_ui(self,nomville,annee,argent,pop,pollution)
+                        pygame.display.flip()
+                    elif event.key == pygame.K_b:
+                        # Skip Year
+                        self.tour += 1
+                        RunGame.game_ui(self,nomville,annee,argent,pop,pollution)
+                        pygame.display.flip()
+
                 elif self.is_button_clicked(event, self.Menu_NewGame): 
                     menu = False
-
                     annee = 2024
                     argent = random.randint(1, 38)
-                    pop = random.randint(5, 100)
+                    pop = random.randint(5, 20)
                     pollution = random.randrange(50,85)
-                    nomville = "Your City"
+                    nomville = "GreenCity"
 
                     self.gamesave(nomville, annee, argent, pop, pollution)
 
-                    #RunGame.loading_screen(self) ; time.sleep(1)
+                    RunGame.loading_screen(self) ; time.sleep(1)
+
                     pygame.draw.rect(self.screen, BLACK, [0, 0, width, height], 0)
                     RunGame.game_ui(self,nomville,annee,argent,pop,pollution)
                     pygame.display.flip()
@@ -302,7 +413,7 @@ class RunGame(object):
 
                 elif self.is_button_clicked(event, self.ResumeGame) :
                     menu = False
-                    #RunGame.loading_screen(self) ; time.sleep(1)
+                    RunGame.loading_screen(self) ; time.sleep(1)
                     pygame.draw.rect(self.screen, BLACK, [0, 0, width, height], 0)
                     with open ("userdata.json","r") as f:
                         data = json.load(f)
