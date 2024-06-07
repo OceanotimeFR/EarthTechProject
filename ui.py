@@ -6,6 +6,10 @@ pygame.mixer.init()
 width, height = 1366, 720
 pygame.font.init()
 police = "textfonts/CARBON-DROID.ttf"
+volume = 0.25
+
+music = ["KD Main - The Boston Bounce","King Major - Cruise Control", "King Major - Play For Keeps","Montana Birds - Cologne","Montana Birds - New Day","Montana Birds - Sunny Days"]
+
 
 nomville = "Your City"
 
@@ -58,6 +62,7 @@ class RunGame(object):
         self.font4 = pygame.transform.scale(pygame.image.load("images/ui_fonts/Font4.png"),(width, height/2+40))
         self.font5 = pygame.transform.scale(pygame.image.load("images/ui_fonts/Font5.png"),(width, height/2+40))
         self.font6 = pygame.transform.scale(pygame.image.load("images/ui_fonts/Font6.png"),(width, height/2+40))
+        self.font7 = pygame.transform.scale(pygame.image.load("images/ui_fonts/Font7.png"),(width, height/2+40))
 
         # Initialisation Icones
 
@@ -67,6 +72,8 @@ class RunGame(object):
         self.population_icon_tr = self.imageloadnsize("images/icones/icones_stats/population.png",(50,40))
         self.time_icon_tr = self.imageloadnsize("images/icones/icones_stats/time.png",(70,53))
         self.upgrade_icon_tr = self.imageloadnsize("images/icones/icones_stats/upgrade.png",(50,40))
+        self.iconPlaySound_tr = self.imageloadnsize("images/icones/menu_ui/SoundOn.png",(50,50))
+        self.iconStopSound_tr = self.imageloadnsize("images/icones/menu_ui/SoundOff.png",(50,50))
 
         # Menu Buttons
         self.Menu_NewGame = pygame.Rect((width // 2 - 100, height // 2 - 50), (200, 25))
@@ -124,12 +131,16 @@ class RunGame(object):
         return False
 
     def menu(self) :
+        
+        global volume
 
-        self.Menu_NewGame = pygame.Rect((width // 2 - 100, height // 2 - 50), (200, 25))
-        self.ResumeGame = pygame.Rect((width // 2 - 100, height // 2),(200,25))
+        self.Menu_NewGame = pygame.Rect((width // 2 - 150, height // 2 - 50), (300, 25))
+        self.ResumeGame = pygame.Rect((width // 2 - 150, height // 2),(300,25))
         self.Menu_LeaveGame = pygame.Rect((width // 2 - 100, height // 2 + 50), (200, 25))
         self.RetourMenu = pygame.Rect((width-100,15),(0,0))
         self.saveButton = pygame.Rect((15,15),(0,0))
+        self.PlayMusic = pygame.Rect((width-125,height-80),(50,50))
+        self.StopMusic = pygame.Rect((width-75,height-80),(50,50))
 
         # Textes :
         screen.blit(self.menuimage, (0,0))
@@ -139,7 +150,7 @@ class RunGame(object):
         self.drawtext(screen,"Nouvelle Partie",25,BLACK,-47) ; self.drawtext(screen,"Nouvelle Partie",25,WHITE,-50)
         self.drawtext(screen,"Reprendre Partie",25,BLACK,3) ; self.drawtext(screen,"Reprendre Partie",25,WHITE,0)
         self.drawtext(screen,"Quitter",25,BLACK,53) ; self.drawtext(screen,"Quitter",25,WHITE,50)
-        versiontext = pygame.font.Font(police,15).render("Early Access - Build Version 0.1.2",True, WHITE) ; screen.blit(versiontext, (width-versiontext.get_size()[0]-3,height-versiontext.get_size()[1]-2))
+        versiontext = pygame.font.Font(police,15).render("Early Access - Build Version 0.1.3",True, WHITE) ; screen.blit(versiontext, (width-versiontext.get_size()[0]-3,height-versiontext.get_size()[1]-2))
         mouse_pos = pygame.mouse.get_pos()
         if self.Menu_NewGame.collidepoint(mouse_pos):
             self.drawtext(screen,"Nouvelle Partie",25,YELLOW,-50)
@@ -147,6 +158,7 @@ class RunGame(object):
             self.drawtext(screen,"Reprendre Partie",25,YELLOW,0)
         elif self.Menu_LeaveGame.collidepoint(mouse_pos):
             self.drawtext(screen,"Quitter",25,YELLOW,50)
+
         pygame.display.flip()
 
     def loading_screen(self):
@@ -178,8 +190,10 @@ class RunGame(object):
             #Cityscape Font
             self.cityscape(popu)
             # Bande Top Screen
-            pygame.draw.rect(self.screen,GREY,[0,0,width,60])
+            pygame.draw.rect(self.screen,BLACK,[width/3,40,width/3,63],0,0,0,0,5,5)
             pygame.draw.rect(self.screen,GREY,[width/3,40,width/3,60],0,0,0,0,5,5)
+            pygame.draw.rect(self.screen,BLACK,[0,0,width,60+3])
+            pygame.draw.rect(self.screen,GREY,[0,0,width,60])
             pygame.draw.rect(self.screen,BLACK,[width/3+10,62,width/3-20,30],0,5)
 
             # Bouton Retour Menu
@@ -190,6 +204,7 @@ class RunGame(object):
 
             # UI
             pos_y = height-height/2+40 ; epaisseur = width/3 ; hauteur = height/2-50
+            pygame.draw.rect(self.screen, BLACK, [-1.5, pos_y-13, 3*epaisseur+3, height], 0,10)
             pygame.draw.rect(self.screen, GREY, [0, pos_y-10, 3*epaisseur, height], 0,10)
             pygame.draw.rect(self.screen, BLACK, [5, pos_y, epaisseur, hauteur],5)
             pygame.draw.rect(self.screen, BLACK, [width/3, pos_y, epaisseur, hauteur],5)
@@ -202,6 +217,7 @@ class RunGame(object):
             self.drawtext(screen,cityname,30,BLACK,-340)
             self.drawtext(screen,cityname,30,GREEN,-343)
             nom_th2 = cityname
+            self.drawtext(screen,ville_info,25,WHITE,-295)
 
             pygame.draw.rect(self.screen,BLACK,[30,pos_y+55,55,55],0,100)
             pygame.draw.rect(self.screen,WHITE,[30,pos_y+55,55,55],1,100)
@@ -257,21 +273,65 @@ class RunGame(object):
         self.screen.blit(text, pos)
 
     def cityscape(self, pop):
-        if pop <= 1000 :
-            self.display("Petite Ville",(255,0,0),(0,0))
+        global ville_info
+        screen.fill(WHITE)
+        if pop <= 100 :
+            ville_info = "Petite Cité"
             screen.blit(self.font1,(0, 0, width, height/2))
-            pygame.display.flip()
-        elif 1000 < pop <= 25000 :
+            """arg += 20
+            pop += 10
+            co2 += 7"""
+        elif 100 < pop <= 250 :
+            ville_info = "Moyenne Cité"
             screen.blit(self.font2,(0, 0,width,height/2))
-        elif 25000 < pop <= 250000 :
+            """arg += 50
+            pop += 25
+            co2 += 15"""
+        elif 250 < pop <= 500 :
+            ville_info = "Grande Cité"
             screen.blit(self.font3,(0, 0,width,height/2))
-        elif 250000 < pop <= 1000000 :
+            """arg += 75
+            pop += 35
+            co2 += 25"""
+        elif 500 < pop <= 750 :
+            ville_info = "Cité Majeure"
+            screen.fill(EF_BLUE)
             screen.blit(self.font4,(0, 0,width,height/2))
-        elif 1000000 < pop <= 5000000 :
+            """arg += 100
+            pop += 100
+            co2 += 50"""
+        elif 750 < pop <= 1000 :
+            ville_info = "Grande Cité Majeure"
+            screen.fill(EF_BLUE)
             screen.blit(self.font5,(0, 0,width,height/2))
-        elif 5000000 < pop : # 5M+ pop
+            """arg += 250
+            pop += 100
+            co2 += 75"""
+        elif 1000 < pop < 2000 :
+            ville_info = "Cité Capitale"
+            screen.fill(BLACK)
             screen.blit(self.font6,(0, 0,width,height/2))
+            """arg += 500
+            pop += 500
+            co2 += 100"""
+        else : 
+            ville_info = "Cité Capitale Majeure"
+            screen.fill(BLACK)
+            screen.blit(self.font7,(0, 0,width,height/2))
+            """arg += 1000
+            pop += 1000
+            co2 += 150"""
+
+    def actions_ui(self):
+        self.screen.fill(GREEN)
+        x = 550 ; y = 250
+        pygame.draw.rect(self.screen, GREY,(width/2-x/2,height/2-y/2,x,y))
+        pygame.draw.rect(self.screen, BLACK,(width/2-x/2-3,height/2-y/2-3,x/2+6,y+6),3)
+        pygame.draw.rect(self.screen, BLACK,(width/2-x/2-3,height/2-y/2-3,x+6,y+6),3)
+        self.display("Actions",BLACK,(width/2-0.35*x,height/2-y/2+25))
+        self.display("Politiques",BLACK,(width/2+x/8,height/2-y/2+25))
         pygame.display.flip()
+        time.sleep(10)
 
 # Display Text
     def display(self, txt, color, pos):
@@ -282,68 +342,51 @@ class RunGame(object):
     def play_sound(self, sound_file):
         pygame.mixer.music.load(sound_file)
         pygame.mixer.music.play()
-    def background_sound(self, path):
+    def background_sound(self, path, vol):
         pygame.mixer.init()
         sound = pygame.mixer.Sound(path) 
-        sound.set_volume(0.1) 
+        sound.set_volume(vol) 
         sound.play(-1)
 
 # Fonctions Jeu
     def developperProduitLocaux(self, pollution, argent):
-        pollution *= 1.05
-        argent *= 0.95
-        return round(pollution,1), round(argent, 1)
-
+        pollution += 5
+        argent -= 10
+        return round(pollution,0), round(argent, 0)
+    
     def developperTransports(self, pollution, population, argent):
         # Transports Combustion / Electrique
-        pollution *= 1.05
+        argent -= 15
         chance = random.randint(0,2)
-        if chance == 0 : population *= 0.95
-        elif chance == 1 : population *= 1.05
-        elif chance == 2 : population *= 1.25
-        argent *= 0.85
-        return round(pollution,1), round(population,1), round(argent, 1)
+        if chance == 0 : population -= 5 ; argent -= 10
+        elif chance == 1 : population += 5
+        elif chance == 2 : population += 10 ; argent += 5
+        return round(pollution,0), round(population,0), round(argent, 0)
 
     def developperInfrastructures(self, pollution, population, argent) :
-        pollution *= 1.02
+        pollution += 5
         chance = random.randint(0,2)
-        if chance == 0 : population *= 0.95 ; argent *= 0.98 ; pollution *= 1.25 #^; self.display(random.randint(0,len(badluck_txt)),WHITE,)
-        elif chance == 1 : population *= 1.05 ; argent *= 1.01 ; pollution *= 1.05
-        elif chance == 2 : population *= 1.25 ; argent *= 1.05 ; pollution *= 0.95
-        argent *= 0.9
-        return round(pollution,1), round(population,1), round(argent, 1)
-
-    def increasepop():
-        global population
-        population+= random.randint(0, 20)
-        return(round(population,0))
-    def decreasepop():
-        global population
-        population -= random.randint(0, 20)
-        return(round(population,0))
-    def increasemoney():
-        global Money
-        Money+= random.randint(0, 20)
-        return(round(Money,1))
-    def decreasemoney():
-        global Money
-        Money -= random.randint(0, 20)
-        return(round(Money,1))
+        if chance == 0 : population -= 5 ; argent -= 5 ; pollution += 10
+        elif chance == 1 : population += 5 ; pollution += 5
+        elif chance == 2 : population += 15 ; argent += 5 ; pollution -= 5
+        argent -= 10
+        return round(pollution,0), round(population,0), round(argent, 0)
 
 # Main Game
     def run_game(self):
         intro = True
         menu = True
-        thread_music = threading.Thread(target=self.background_sound, args=("soundtrack/music/MainTheme.mp3",))
+        thread_music = threading.Thread(target=self.background_sound, args=(f"soundtrack/music/{music[random.randint(0,len(music)-1)]}.ogg",volume)) #vol : 0.25 (base def)
         play_song = False
+        self.tour = 1
 
         while True:
             if self.tour == 3:
                 self.tour = 0
                 annee+=1
-                pollution += round(population*0.1, 1)
-                pop += round(((1/2)*pop*0.8), 0)
-                argent += round(argent*0.1, 1)
+                pollution += 2
+                pop += 5
+                argent += 5
             if intro : 
                 x1 = width/2-(331/2) ; y1 = height/2 - (123/2)
                 # Affichage Logo EFREI
@@ -368,6 +411,8 @@ class RunGame(object):
 
                 #elif self.is_button_clicked(event, self.button) :
                     return
+
+                # nom_th2,annee_th2,argent_th2,population_th2,tco2_th2
 
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_j:
@@ -435,3 +480,4 @@ class RunGame(object):
 if __name__ == "__main__":
     game = RunGame()
     game.run_game()
+    #game.actions_ui()
