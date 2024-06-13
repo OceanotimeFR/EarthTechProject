@@ -519,7 +519,7 @@ class RunGame(object):
 # Main Game
     def run_game(self):
         gamestop = False
-        intro = False
+        intro = True
         menu = True
         thread_music = threading.Thread(target=self.background_sound, args=(f"soundtrack/music/{music[random.randint(0,len(music)-1)]}.ogg",volume)) #vol : 0.25 (base def)
         play_song = False
