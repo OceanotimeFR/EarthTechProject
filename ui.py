@@ -725,7 +725,7 @@ class RunGame(object):
                     nomville = "GreenCity"
 
                     self.gamesave(nomville, annee, argent, pop, pollution)
-                    #!RunGame.loading_screen(self) ; time.sleep(1)
+                    RunGame.loading_screen(self) ; time.sleep(1)
                     self.screen.fill(BLACK)
                     RunGame.game_ui(self,nomville,annee,argent,pop,pollution)
                     pygame.display.flip()
@@ -752,9 +752,3 @@ class RunGame(object):
                     self.screen.fill(BLACK) ; pygame.display.flip()
                     self.gamesave(nom_th2,annee_th2,argent_th2,population_th2,tco2_th2)
                     menu = True
-
-
-if __name__ == "__main__":
-    game = RunGame()
-    game.run_game()
-    #game.actions_ui()
